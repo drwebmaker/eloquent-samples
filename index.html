@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <h1>See to console</h1>
+    <script>
+        function loopingTriangle() {
+            var str = "";
+            while (str.length < 7) {
+                console.log(str += "#");
+            }
+        }
+
+        function FizzBuzz() {
+            for(var i = 1; i <= 100; i++) {
+                if( (i % 3 === 0) || (i % 5 === 0) ) {
+                    console.log('FizzBuzz');
+                } else {
+                    console.log(i);
+                }
+
+            }
+        }
+
+        function chessBoard() {
+            var row = 8,
+                cell = 8,
+                result = '\n';
+
+            for (var i = 1; i <= row; i++) {
+                for (var j = 1; j <= cell; j++) {
+                    result += (i % 2 == j % 2) ? "#" : " ";
+                }
+                result += "\n";
+            }
+            console.log(result);
+
+        }
+
+
+//        loopingTriangle ();
+//        FizzBuzz();
+        chessBoard ();
+    </script>
+</body>
+</html>
+
+
