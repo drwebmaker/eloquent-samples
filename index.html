@@ -1,51 +1,187 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <title>Document</title>
 </head>
 <body>
-    <h1>See to console</h1>
-    <script>
-        function loopingTriangle() {
-            var str = "";
-            while (str.length < 7) {
-                console.log(str += "#");
-            }
+<h1>See to console</h1>
+<script>
+  function loopingTriangle() {
+    var str = "";
+    while (str.length < 7) {
+      console.log(str += "#");
+    }
+  }
+
+  function FizzBuzz() {
+    for(var i = 1; i <= 100; i++) {
+      if( (i % 3 === 0) || (i % 5 === 0) ) {
+        console.log('FizzBuzz');
+      } else {
+        console.log(i);
+      }
+    }
+  }
+
+  function chessBoard() {
+    var row = 8,
+      cell = 8,
+      result = '\n';
+    for (var i = 1; i <= row; i++) {
+      for (var j = 1; j <= cell; j++) {
+        result += (i % 2 == j % 2) ? "#" : " ";
+      }
+      result += "\n";
+    }
+    console.log(result);
+  }
+
+  function min(a, b) {
+    return a < b ? a : b;
+  }
+
+  function isEven(n) {
+    if (n > 1 && n != 0) {
+      return isEven(n-2);
+    } else if (n == 0 ) {
+      return true;
+    } else if (n == 1 ) {
+        return false;
+      }
+  }
+
+  function countBs(b) {
+    var result = 0;
+    for (var i = 0; i < b.length; i++) {
+      if (b.charAt(i) == 'B') {
+        result ++;
+      }
+    }return result;
+  }
+
+  function countChar(b, n) {
+    var result = 0;
+    for (var i = 0; i < b.length; i++) {
+      if (b.charAt(i) == n) {
+        result ++;
+      }
+    }return result;
+  }
+
+
+  function range(start, end, n) {
+    var arr = [];
+    if (n == undefined) {
+      while (end >= start) {
+        arr.push(start);
+        start++;
+      }
+    } else {
+      if (n > 0) {
+        while (end >= start) {
+          arr.push(start);
+          start += n;
         }
-
-        function FizzBuzz() {
-            for(var i = 1; i <= 100; i++) {
-                if( (i % 3 === 0) || (i % 5 === 0) ) {
-                    console.log('FizzBuzz');
-                } else {
-                    console.log(i);
-                }
-
-            }
+      } else {
+        while (start >= end) {
+          arr.push(start);
+            start += n;
+          }
         }
+      }
+    return arr;
+  }
 
-        function chessBoard() {
-            var row = 8,
-                cell = 8,
-                result = '\n';
+  function sum(arr) {
+    var result = 0;
+    for (var i = 0; i< arr.length; i++) {
+      result += arr[i];
+    }
+    return result;
+  }
 
-            for (var i = 1; i <= row; i++) {
-                for (var j = 1; j <= cell; j++) {
-                    result += (i % 2 == j % 2) ? "#" : " ";
-                }
-                result += "\n";
-            }
-            console.log(result);
+  function reverseArray(arr) {
+    var arr2 = [];
+    for(var i = arr.length-1; i >= 0; i--) {
+      arr2.push(arr[i]);
+    }
+    return arr2;
+  }
 
-        }
+  function reverseArrayInPlace(arr) {
+    for( var i = 0; i < Math.floor( arr.length/2 ); i++ ) {
+      var tempArr = arr[i];
+      arr[i] = arr[arr.length - 1 - i];
+      arr[arr.length - 1 - i] = tempArr;
+    }
+  }
+
+  function arrayToList(arr) {
+    var list = null;
+    for( var i = arr.length-1; i >= 0; i-- ) {
+      list = {value: arr[i], rest: list};
+    }
+    return list;
+  }
+
+  function listToArray(list) {
+    var arr = [];
+    for( ; list; list = list.rest ) {
+      arr.push(list.value);
+    }
+    return arr;
+  }
+
+  function prepend(value, rest) {
+    return {value: value, rest: rest};
+  }
+
+  function nth(list, n) {
+    return ( n === 0 ) ? list.value : nth( list.rest, n - 1 );
+  }
+
+  function deepEqual( obj1, obj2 ) {
+    var countObj1 = 0, countObj2 = 0;
+
+    if( obj1 === obj2 ) return true;
+    if( obj1 == null || typeof obj1 != "object" || obj2 == null || typeof obj2 != "object" ) return false;
+    for( var key in obj1 ) {
+      countObj1++;
+    }
+    for( var prop in obj2 ) {
+      countObj2++;
+      if(!(prop in obj1) || !deepEqual( obj1[prop], obj2[prop] )) return false;
+    }
+    return countObj1 === countObj2;
+  }
 
 
-//        loopingTriangle ();
-//        FizzBuzz();
-        chessBoard ();
-    </script>
+
+
+  var obj = {here: {is: "an"}, object: 2};
+  console.log(deepEqual(obj, obj));
+  console.log(deepEqual(obj, {here: 1, object: 2}));
+  console.log(deepEqual(obj, {here: {is: "an"}, object: 2}));
+//  console.log(arrayToList([10, 20]));
+//  console.log(listToArray(arrayToList([10, 20, 30])));
+//  console.log(prepend(10, prepend(20, null)));
+//  console.log(nth(arrayToList([10, 20, 30]), 1));
+//  var arrayValue = [1, 2, 3, 4, 5];
+//  reverseArrayInPlace(arrayValue);
+//  console.log(arrayValue);
+//  console.log(reverseArray(["A", "B", "C"]));
+//  console.log(range(5, 2, -1));
+//  console.log(range(2, 5));
+//  console.log(countBs("BBC"));
+//  console.log(countChar("kakkerlak", "k"));
+//  console.log(isEven(50));
+//  console.log(isEven(75));
+//  console.log(isEven(-1));
+//  console.log(min(0, 10));
+//  loopingTriangle ();
+//  FizzBuzz();
+//  chessBoard ();
+</script>
 </body>
 </html>
-
-
