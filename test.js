@@ -1,5 +1,3 @@
-"use strict";
-
 var plan = ["############################",
   "#      #    #      o      ##",
   "#                          #",
@@ -17,7 +15,6 @@ function Vector(x, y) {
   this.x = x;
   this.y = y;
 }
-
 Vector.prototype.plus = function(other) {
   return new Vector(this.x + other.x, this.y + other.y);
 };
@@ -27,20 +24,16 @@ function Grid(width, height) {
   this.width = width;
   this.height = height;
 }
-
 Grid.prototype.isInside = function(vector) {
   return vector.x >= 0 && vector.x < this.width &&
-         vector.y >= 0 && vector.y < this.height;
+    vector.y >= 0 && vector.y < this.height;
 };
-
 Grid.prototype.get = function(vector) {
   return this.space[vector.x + this.width * vector.y];
 };
-
 Grid.prototype.set = function(vector, value) {
   this.space[vector.x + this.width * vector.y] = value;
 };
-
 
 var directions = {
   "n":  new Vector( 0, -1),
@@ -59,17 +52,16 @@ function randomElement(array) {
 
 function BouncingCritter() {
   this.direction = randomElement(Object.keys(directions));
-}
+};
 
 BouncingCritter.prototype.act = function(view) {
-  if(view.look(this.direction) != " ")
-      this.direction = view.find(" ") || "s";
-    return {type: "move", direction: this.direction};
-
+  if (view.look(this.direction) != " ")
+    this.direction = view.find(" ") || "s";
+  return {type: "move", direction: this.direction};
 };
 
 function elementFromChar(legend, ch) {
-  if(ch == " ")
+  if (ch == " ")
     return null;
   var element = new legend[ch]();
   element.originChar = ch;
@@ -82,19 +74,17 @@ function World(map, legend) {
   this.legend = legend;
 
   map.forEach(function(line, y) {
-    for (var x = 0; x < line.length; x++) {
-      grid.set(new Vector(x, y), elementFromChar(legend, line[x]));
-    }
+    for (var x = 0; x < line.length; x++)
+      grid.set(new Vector(x, y),
+        elementFromChar(legend, line[x]));
   });
 }
 
 function charFromElement(element) {
-  if (element == null) {
+  if (element == null)
     return " ";
-  }
-  else {
+  else
     return element.originChar;
-  }
 }
 
 World.prototype.toString = function() {
@@ -113,17 +103,30 @@ function Wall() {}
 
 var world = new World(plan, {"#": Wall, "o": BouncingCritter});
 console.log(world.toString());
+// ? ############################
+//   #      #    #      o      ##
+//   #                          #
+//   #          #####           #
+//   ##         #   #    ##     #
+//   ###           ##     #     #
+//   #           ###      #     #
+//   #   ####                   #
+//   #   ##       o             #
+//   # o  #         o       ### #
+//   #    #                     #
+//   ############################
+
 
 Grid.prototype.forEach = function(f, context) {
-  for (var y = 0; y < this.length; y++) {
+  for (var y = 0; y < this.height; y++) {
     for (var x = 0; x < this.width; x++) {
       var value = this.space[x + y * this.width];
-      if (value != null) {
+      if (value != null)
         f.call(context, value, new Vector(x, y));
-      }
     }
   }
 };
+
 
 World.prototype.turn = function() {
   var acted = [];
@@ -134,6 +137,7 @@ World.prototype.turn = function() {
     }
   }, this);
 };
+
 
 World.prototype.letAct = function(critter, vector) {
   var action = critter.act(new View(this, vector));
@@ -158,13 +162,15 @@ function View(world, vector) {
   this.world = world;
   this.vector = vector;
 }
+
 View.prototype.look = function(dir) {
   var target = this.vector.plus(directions[dir]);
   if (this.world.grid.isInside(target))
-    return charFromElement(this.world.grid.get(target));
+    return charFromElement(this.world.grid.get(target))
   else
     return "#";
 };
+
 View.prototype.findAll = function(ch) {
   var found = [];
   for (var dir in directions)
@@ -172,6 +178,7 @@ View.prototype.findAll = function(ch) {
       found.push(dir);
   return found;
 };
+
 View.prototype.find = function(ch) {
   var found = this.findAll(ch);
   if (found.length == 0) return null;
@@ -182,3 +189,97 @@ for (var i = 0; i < 5; i++) {
   world.turn();
   console.log(world.toString());
 }
+
+
+
+// test: no
+
+(function (animateWorld) {
+  "use strict";
+
+  var active = null;
+
+  function Animated(world) {
+    this.world = world;
+    var outer = (window.__sandbox ? window.__sandbox.output.div : document.body), doc = outer.ownerDocument;
+    var node = outer.appendChild(doc.createElement("div"));
+    node.style.cssText = "position: relative; width: intrinsic; width: fit-content;";
+    this.pre = node.appendChild(doc.createElement("pre"));
+    this.pre.appendChild(doc.createTextNode(world.toString()));
+    this.button = node.appendChild(doc.createElement("div"));
+    this.button.style.cssText = "position: absolute; bottom: 8px; right: -4.5em; color: white; font-family: tahoma, arial; " +
+      "background: #4ab; cursor: pointer; border-radius: 18px; font-size: 70%; width: 3.5em; text-align: center;";
+    this.button.innerHTML = "stop";
+    var self = this;
+    this.button.addEventListener("click", function() { self.clicked(); });
+    this.disabled = false;
+    if (active) active.disable();
+    active = this;
+    this.interval = setInterval(function() { self.tick(); }, 333);
+  }
+
+  Animated.prototype.clicked = function() {
+    if (this.disabled) return;
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+      this.button.innerHTML = "start";
+    } else {
+      var self = this;
+      this.interval = setInterval(function() { self.tick(); }, 333);
+      this.button.innerHTML = "stop";
+    }
+  };
+
+  Animated.prototype.tick = function() {
+    this.world.turn();
+    this.pre.removeChild(this.pre.firstChild);
+    this.pre.appendChild(this.pre.ownerDocument.createTextNode(this.world.toString()));
+  };
+
+  Animated.prototype.disable = function() {
+    this.disabled = true;
+    clearInterval(this.interval);
+    this.button.innerHTML = "Disabled";
+    this.button.style.color = "red";
+  };
+
+  window.animateWorld = function(world) { new Animated(world); };
+})();
+
+
+animateWorld(world);
+
+var directionNames = Object.keys(directions);
+function dirPlus(dir, n) {
+  var index = directionNames.indexOf(dir);
+  return directionNames[(index + n + 8) % 8];
+}
+
+function WallFollower() {
+  this.dir = "s";
+}
+
+WallFollower.prototype.act = function(view) {
+  var start = this.dir;
+  if (view.look(dirPlus(this.dir, -3)) != " ")
+    start = this.dir = dirPlus(this.dir, -2);
+  while (view.look(this.dir) != " ") {
+    this.dir = dirPlus(this.dir, 1);
+    if (this.dir == start) break;
+  }
+  return {type: "move", direction: this.dir};
+};
+
+animateWorld(new World(
+  ["############",
+    "#     #    #",
+    "#   ~    ~ #",
+    "#  ##      #",
+    "#  ##  o####",
+    "#          #",
+    "############"],
+  {"#": Wall,
+    "~": WallFollower,
+    "o": BouncingCritter}
+));
