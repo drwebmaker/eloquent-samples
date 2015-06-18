@@ -264,12 +264,12 @@ function Plant() {
   this.energy = 3 + Math.random() * 4;
 }
 Plant.prototype.act = function(context) {
-  if (this.energy > 15) {
+  if (this.energy > 20) {
     var space = context.find(" ");
     if (space)
       return {type: "reproduce", direction: space};
   }
-  if (this.energy < 20)
+  if (this.energy < 30)
     return {type: "grow"};
 };
 
@@ -308,22 +308,30 @@ PlantEater.prototype.act = function(context) {
 
 function SmartPlantEater() {
   this.energy = 30;
-  this.last_reproduction = 0;
+  this.direction = randomElement(Object.keys(directions));
+  this.eatCounter = 1;
 }
 SmartPlantEater.prototype.act = function(view) {
   var space = view.find(" ");
-  if (this.energy > 60 && space && this.last_reproduction > 60) {
-    this.last_reproduction = 0;
+  if (this.energy > 40 && space)
     return {type: "reproduce", direction: space};
-  }
-  var plant = view.find("*");
-  if (plant && view.findAll("*").length >= 2) {
-    this.last_reproduction += 1;
-    return {type: "eat", direction: plant};
+  var plant = view.findAll("*");
+  if (plant.length > 1) {
+    if (this.eatCounter >= 0) {
+      this.eatCounter = 0;
+      return {type: "eat", direction: randomElement(plant)};
+    } else {
+      this.eatCounter++;
+    }
   }
   if (space) {
-    this.last_reproduction += 1;
-    return {type: "move", direction: space};
+    var spaces = view.findAll(" ");
+    if (spaces.indexOf(this.direction) == -1) {
+      this.direction = space;
+    }
+    return {type: "move", direction: this.direction};
+  } else {
+    this.direction = "s";
   }
 };
 
@@ -354,27 +362,33 @@ var valley = new LifelikeWorld(
 
 
 function Tiger() {
-  this.energy = 100;
-  this.last_reproduction = 0;
+  this.energy = 40;
+  this.direction = randomElement(Object.keys(directions));
 }
-Tiger.prototype.act = function(view) {
-  var space = view.findAll(" ").length > 2 ? view.find(" ") : view.find("*");
-  if (this.energy > 60 && space && this.last_reproduction > 60) {
-    this.last_reproduction = 0;
+Tiger.prototype.act = function (view) {
+  var space = view.find(" ");
+  var critter = view.find("O");
+  var plant = view.findAll("*");
+  if (critter) {
+    this.energy += critter.energy;
+    return {type: "eat", direction: critter};
+  }
+  if (this.energy > 50 && space) {
     return {type: "reproduce", direction: space};
   }
-  var plantEater = view.find("O");
-  if (plantEater) {
-    this.last_reproduction += 1;
-    return {type: "eat", direction: plantEater};
-  }
-  var plant = view.find("*");
-  if (plant && view.findAll("*").length >= 2) {
-    this.last_reproduction += 1;
-    return {type: "eat", direction: plant};
-  }
   if (space) {
-    this.last_reproduction += 1;
-    return {type: "move", direction: space};
+    var spaces = view.findAll(" ");
+    if (spaces.indexOf(this.direction) == -1) {
+      this.direction = space;
+    }
+    return {type: "move", direction: this.direction};
+  } else {
+    this.direction = "s";
+  }
+
+  if (plant.length > 1) {
+    if (this.energy < 10) {
+      return {type: "eat", direction: plant};
+    }
   }
 };
